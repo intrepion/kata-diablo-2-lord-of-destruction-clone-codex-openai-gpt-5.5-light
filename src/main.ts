@@ -1,5 +1,19 @@
 import "./styles.css";
-import { advanceGame, castSkill, createGameState, enterWilderness, setDestination, usePotion, type SkillId } from "./domain/game";
+import {
+  addLootToInventory,
+  advanceGame,
+  castSkill,
+  createGameState,
+  createLootDrop,
+  enterWilderness,
+  equipInventoryItem,
+  sellInventoryItem,
+  setDestination,
+  stashInventoryItem,
+  toggleInventory,
+  usePotion,
+  type SkillId
+} from "./domain/game";
 import { defaultCamera } from "./domain/projection";
 import { bindCanvasClick, createShell, renderGame } from "./render";
 
@@ -43,12 +57,34 @@ handles.hud.querySelector("[data-testid='potion']")?.addEventListener("click", (
   handles.message.textContent = state.message;
 });
 
+handles.hud.querySelector("[data-testid='inventory']")?.addEventListener("click", () => {
+  state = toggleInventory(state);
+  handles.message.textContent = state.message;
+});
+
+handles.hud.querySelector("[data-testid='debug-loot']")?.addEventListener("click", () => {
+  state = addLootToInventory(state, createLootDrop(20, "weapon"));
+  handles.message.textContent = state.message;
+});
+
+handles.hud.addEventListener("click", (event) => {
+  const target = event.target;
+  if (!(target instanceof HTMLElement)) return;
+  const itemId = target.dataset.itemId;
+  if (!itemId) return;
+  if (target.dataset.action === "equip") state = equipInventoryItem(state, itemId);
+  if (target.dataset.action === "sell") state = sellInventoryItem(state, itemId);
+  if (target.dataset.action === "stash") state = stashInventoryItem(state, itemId);
+  handles.message.textContent = state.message;
+});
+
 window.addEventListener("keydown", (event) => {
   if (event.key === "1") state = castSkill(state, "cleave");
   if (event.key === "2") state = castSkill(state, "emberBolt");
   if (event.key === "3") state = castSkill(state, "bindWretch");
   if (event.key.toLowerCase() === "q") state = usePotion(state);
   if (event.key.toLowerCase() === "t") state = enterWilderness(state);
+  if (event.key.toLowerCase() === "i") state = toggleInventory(state);
   handles.message.textContent = state.message;
 });
 

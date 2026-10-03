@@ -3,6 +3,35 @@ import { distance, type WorldPoint } from "./projection";
 export type Zone = "town" | "wilderness" | "dungeon" | "boss";
 export type SkillId = "cleave" | "emberBolt" | "bindWretch";
 export type EnemyFamily = "swarmMelee" | "rangedCultist" | "durableBeast" | "ashenBrute";
+export type Rarity = "common" | "magic" | "rare";
+export type EquipmentSlot = "weapon" | "offhand" | "helm" | "chest" | "gloves" | "boots" | "amulet" | "ring";
+
+export type ItemStats = {
+  damage?: number;
+  armor?: number;
+  vitality?: number;
+  focus?: number;
+  firePower?: number;
+  leech?: number;
+  moveSpeed?: number;
+};
+
+export type Item = {
+  id: string;
+  name: string;
+  rarity: Rarity;
+  slot: EquipmentSlot;
+  footprint: { w: number; h: number };
+  value: number;
+  stats: ItemStats;
+  affixes: string[];
+};
+
+export type InventoryEntry = {
+  item: Item;
+  x: number;
+  y: number;
+};
 
 export type Combatant = {
   id: string;
@@ -35,6 +64,10 @@ export type PlayerState = {
   maxMana: number;
   potions: number;
   gold: number;
+  inventoryOpen: boolean;
+  inventory: InventoryEntry[];
+  equipment: Partial<Record<EquipmentSlot, Item>>;
+  stash: Item[];
   cooldowns: Record<SkillId, number>;
 };
 
@@ -60,6 +93,10 @@ export function createGameState(): GameState {
       maxMana: 60,
       potions: 3,
       gold: 80,
+      inventoryOpen: false,
+      inventory: [],
+      equipment: {},
+      stash: [],
       cooldowns: {
         cleave: 0,
         emberBolt: 0,
@@ -92,6 +129,106 @@ export function enterWilderness(state: GameState): GameState {
       makeEnemy("cultist-1", "rangedCultist", { x: 7, y: 4.3 })
     ],
     message: "First Blood: Swarm Melee and Ranged Cultist enemies ahead."
+  };
+}
+
+export function toggleInventory(state: GameState): GameState {
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      inventoryOpen: !state.player.inventoryOpen
+    },
+    message: state.player.inventoryOpen ? "Inventory closed." : "Inventory paused the world for item comparison."
+  };
+}
+
+export function addLootToInventory(state: GameState, item: Item): GameState {
+  const position = findInventorySpace(state.player.inventory, item);
+  if (!position) {
+    return { ...state, message: "Grid Inventory is full." };
+  }
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      inventory: [...state.player.inventory, { item, ...position }]
+    },
+    message: `${item.name} added to Grid Inventory.`
+  };
+}
+
+export function equipInventoryItem(state: GameState, itemId: string): GameState {
+  const entry = state.player.inventory.find((candidate) => candidate.item.id === itemId);
+  if (!entry) {
+    return { ...state, message: "Item is not in Inventory." };
+  }
+  const replaced = state.player.equipment[entry.item.slot];
+  const remaining = state.player.inventory.filter((candidate) => candidate.item.id !== itemId);
+  const inventory = replaced ? [...remaining, { item: replaced, x: entry.x, y: entry.y }] : remaining;
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      inventory,
+      equipment: {
+        ...state.player.equipment,
+        [entry.item.slot]: entry.item
+      }
+    },
+    message: `Equipped ${entry.item.name}.`
+  };
+}
+
+export function sellInventoryItem(state: GameState, itemId: string): GameState {
+  const entry = state.player.inventory.find((candidate) => candidate.item.id === itemId);
+  if (!entry) {
+    return { ...state, message: "Vendor needs an item in Inventory." };
+  }
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      gold: state.player.gold + entry.item.value,
+      inventory: state.player.inventory.filter((candidate) => candidate.item.id !== itemId)
+    },
+    message: `Vendor paid ${entry.item.value} gold for ${entry.item.name}.`
+  };
+}
+
+export function stashInventoryItem(state: GameState, itemId: string): GameState {
+  const entry = state.player.inventory.find((candidate) => candidate.item.id === itemId);
+  if (!entry) {
+    return { ...state, message: "Stash needs an item in Inventory." };
+  }
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      stash: [...state.player.stash, entry.item],
+      inventory: state.player.inventory.filter((candidate) => candidate.item.id !== itemId)
+    },
+    message: `${entry.item.name} moved to Stash.`
+  };
+}
+
+export function createLootDrop(seed: number, slot: EquipmentSlot = "weapon"): Item {
+  const rarity: Rarity = seed % 5 === 0 ? "rare" : seed % 2 === 0 ? "magic" : "common";
+  const prefix = rarity === "rare" ? "Vivid" : rarity === "magic" ? "Ember" : "Worn";
+  const baseName = slot === "weapon" ? "Hand Axe" : slot === "offhand" ? "Ward" : "Harness";
+  const stats: ItemStats =
+    slot === "weapon"
+      ? { damage: 6 + (seed % 7), firePower: rarity === "common" ? 0 : 3 }
+      : { armor: 4 + (seed % 5), vitality: rarity === "rare" ? 6 : 2 };
+  return {
+    id: `loot-${seed}-${slot}`,
+    name: `${prefix} ${baseName}`,
+    rarity,
+    slot,
+    footprint: slot === "weapon" ? { w: 1, h: 3 } : { w: 2, h: 2 },
+    value: rarity === "rare" ? 55 : rarity === "magic" ? 32 : 14,
+    stats,
+    affixes: rarity === "common" ? [] : [rarity === "rare" ? "of Leech" : "of Focus"]
   };
 }
 
@@ -171,6 +308,9 @@ export function castSkill(state: GameState, skill: SkillId): GameState {
 }
 
 export function advanceGame(state: GameState, deltaSeconds: number): GameState {
+  if (state.player.inventoryOpen) {
+    return { ...state, tick: state.tick + 1 };
+  }
   let next = movePlayer(state, deltaSeconds);
   next = {
     ...next,
@@ -274,12 +414,16 @@ function damageEnemy(state: GameState, enemyId: string, amount: number, source: 
     return state;
   }
   const nextHealth = Math.max(0, enemy.health - amount);
-  return {
+  let next: GameState = {
     ...state,
     enemies: state.enemies.map((candidate) => (candidate.id === enemyId ? { ...candidate, health: nextHealth } : candidate)),
     floatingText: addText(state, enemy.position, `${amount}`),
     message: `${source} dealt ${amount} damage.`
   };
+  if (nextHealth === 0 && enemy.health > 0) {
+    next = addLootToInventory(next, createLootDrop(state.nextId + amount, enemy.family === "rangedCultist" ? "offhand" : "weapon"));
+  }
+  return next;
 }
 
 function bindEnemy(state: GameState, enemyId: string, seconds: number): GameState {
@@ -328,6 +472,30 @@ function addText(state: GameState, position: WorldPoint, label: string): Floatin
       ttl: 0.9
     }
   ];
+}
+
+function findInventorySpace(inventory: InventoryEntry[], item: Item): { x: number; y: number } | null {
+  const width = 6;
+  const height = 4;
+  for (let y = 0; y <= height - item.footprint.h; y += 1) {
+    for (let x = 0; x <= width - item.footprint.w; x += 1) {
+      if (fits(inventory, item, x, y)) {
+        return { x, y };
+      }
+    }
+  }
+  return null;
+}
+
+function fits(inventory: InventoryEntry[], item: Item, x: number, y: number): boolean {
+  return inventory.every((entry) => {
+    const separated =
+      x + item.footprint.w <= entry.x ||
+      entry.x + entry.item.footprint.w <= x ||
+      y + item.footprint.h <= entry.y ||
+      entry.y + entry.item.footprint.h <= y;
+    return separated;
+  });
 }
 
 const skillSpecs: Record<SkillId, { name: string; manaCost: number; cooldown: number; damage: number; range: number; maxTargets: number }> = {

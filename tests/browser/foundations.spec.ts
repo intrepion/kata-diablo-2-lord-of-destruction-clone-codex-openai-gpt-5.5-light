@@ -27,3 +27,18 @@ test("First Blood smoke enters wilderness and casts starting skills", async ({ p
   await expect(page.getByTestId("message")).toContainText("Ember Bolt");
   await expect(page.getByTestId("mana")).not.toContainText("Mana 60/60");
 });
+
+test("Loot Hunger smoke equips, sells, and stashes loot", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByTestId("debug-loot").click();
+  await expect(page.getByTestId("message")).toContainText("Grid Inventory");
+  await page.getByTestId("inventory").click();
+  await expect(page.getByTestId("inventory-panel")).toBeVisible();
+  await page.getByRole("button", { name: "Equip" }).first().click();
+  await expect(page.getByTestId("equipped-weapon")).toContainText("Vivid Hand Axe");
+
+  await page.getByTestId("debug-loot").click();
+  await page.getByRole("button", { name: "Stash" }).first().click();
+  await expect(page.getByTestId("stash-count")).toContainText("Stash: 1");
+});

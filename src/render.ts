@@ -28,7 +28,9 @@ export function createShell(root: HTMLElement): RenderHandles {
           <button data-testid="skill-bind-wretch" type="button">Bind Wretch</button>
           <button data-testid="potion" type="button">Potion</button>
           <button data-testid="inventory" type="button">Inventory</button>
+          <button data-testid="debug-loot" type="button">Find Loot</button>
         </div>
+        <div class="inventory-panel" data-testid="inventory-panel" hidden></div>
         <p data-testid="message"></p>
       </section>
     </main>
@@ -88,6 +90,7 @@ export function renderGame(
   context.font = "16px system-ui";
   context.fillText("Foundations: Canvas, isometric projection, Click-To-Move intent", 28, 42);
   context.fillText("First Blood: skills, enemies, potion tension, Death Toll", 28, 66);
+  context.fillText("Loot Hunger: rarity drops, Grid Inventory, equipment, Vendor, Stash", 28, 90);
 
   for (const text of state.floatingText) {
     const point = worldToScreen(text.position, camera);
@@ -124,6 +127,50 @@ function updateHud(hud: HTMLElement, state: GameState): void {
   hud.querySelector("[data-testid='mana']")!.textContent = `Mana ${Math.round(state.player.mana)}/${state.player.maxMana}`;
   hud.querySelector("[data-testid='gold']")!.textContent = `Gold ${state.player.gold}`;
   hud.querySelector("[data-testid='potion']")!.textContent = `Potion (${state.player.potions})`;
+  const panel = hud.querySelector<HTMLElement>("[data-testid='inventory-panel']");
+  if (!panel) return;
+  panel.hidden = !state.player.inventoryOpen;
+  if (!state.player.inventoryOpen) return;
+  const signature = JSON.stringify({
+    inventory: state.player.inventory.map((entry) => [entry.item.id, entry.x, entry.y]),
+    equipment: Object.entries(state.player.equipment).map(([slot, item]) => [slot, item?.id]),
+    stash: state.player.stash.map((item) => item.id)
+  });
+  if (panel.dataset.signature === signature) return;
+  panel.dataset.signature = signature;
+  const equippedWeapon = state.player.equipment.weapon?.name ?? "Empty";
+  panel.innerHTML = `
+    <div class="inventory-summary">
+      <strong>Grid Inventory</strong>
+      <span data-testid="equipped-weapon">Weapon: ${equippedWeapon}</span>
+      <span data-testid="stash-count">Stash: ${state.player.stash.length}</span>
+    </div>
+    <div class="inventory-grid">
+      ${state.player.inventory
+        .map(
+          (entry) => `
+            <article class="item ${entry.item.rarity}" style="grid-column: ${entry.x + 1} / span ${entry.item.footprint.w}; grid-row: ${entry.y + 1} / span ${entry.item.footprint.h};" data-testid="item-${entry.item.id}">
+              <strong>${entry.item.name}</strong>
+              <span>${entry.item.slot} | ${entry.item.affixes.join(", ") || "plain"}</span>
+              <span>${formatStats(entry.item.stats)}</span>
+              <div>
+                <button type="button" data-action="equip" data-item-id="${entry.item.id}">Equip</button>
+                <button type="button" data-action="sell" data-item-id="${entry.item.id}">Sell</button>
+                <button type="button" data-action="stash" data-item-id="${entry.item.id}">Stash</button>
+              </div>
+            </article>
+          `
+        )
+        .join("")}
+    </div>
+  `;
+}
+
+function formatStats(stats: Record<string, number | undefined>): string {
+  return Object.entries(stats)
+    .filter((entry): entry is [string, number] => typeof entry[1] === "number" && entry[1] > 0)
+    .map(([key, value]) => `${key} +${value}`)
+    .join(", ");
 }
 
 function drawIsoGrid(context: CanvasRenderingContext2D, camera: IsoCamera): void {

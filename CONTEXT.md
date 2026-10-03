@@ -159,3 +159,31 @@ _Avoid_: Pixel art, painted sprite, placeholder shape
 **Milestone Slice**:
 An independently playable, verified, committed, and pushed development step that adds a coherent piece of the game.
 _Avoid_: Batch, phase, checkpoint
+
+**Foundations**:
+The Milestone Slice that proves the technical playfield: Vite, TypeScript, Canvas loop, isometric projection, Click-To-Move intent, HUD shell, and deterministic test harness.
+_Avoid_: Setup, scaffolding
+
+**First Blood**:
+The Milestone Slice that proves combat readability, player resources, starting skills, first enemy families, potion use, damage feedback, and Death Toll.
+_Avoid_: Combat phase, battle demo
+
+**Loot Hunger**:
+The Milestone Slice that proves drops, Rarity, Affixes, Grid Inventory, Equipment Slots, item comparison, Vendor selling, and Stash storage.
+_Avoid_: Loot phase, inventory demo
+
+**Dungeon Descent**:
+The Milestone Slice that proves deterministic Dungeon generation, Champion Pack pressure, Durable Beast encounters, Return Marker use, and town-to-dungeon traversal.
+_Avoid_: Dungeon phase, map demo
+
+**Brute Reckoning**:
+The Milestone Slice that proves the authored Boss Room, Ashen Brute combat, summoned reinforcements, potion pressure, boss reward, level-up choice, and return-to-town completion.
+_Avoid_: Boss phase, final fight
+
+**Direct Launch**:
+The Milestone Slice that proves the game runs from the root page through a direct-file-safe browser bundle.
+_Avoid_: Build phase, packaging
+
+**Verification Contract**:
+The required evidence that a Milestone Slice is done, including deterministic tests, real browser gameplay smoke, production build, whitespace check, commit, push, and remote SHA verification.
+_Avoid_: QA checklist, done criteria

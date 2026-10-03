@@ -36,6 +36,10 @@ _Avoid_: WASD movement, twin-stick movement
 A themed progression branch for the player class that supports a distinct combat build.
 _Avoid_: Talent tab, subclass, ability category
 
+**Ashbound**:
+The starter player class, an oath-burned exile whose Build Identity can lean into blade combat, ember magic, or binding curses.
+_Avoid_: Warrior, mage, necromancer
+
 **Build Identity**:
 The recognizable combat style created by a player's skill choices, equipment, and tactical habits.
 _Avoid_: Loadout, character type
@@ -55,6 +59,26 @@ _Avoid_: Inventory cell, gear bucket
 **Inventory**:
 The player's carried item collection, separate from equipped items.
 _Avoid_: Bag, stash
+
+**Grid Inventory**:
+An Inventory represented as spatial cells where item footprint and placement matter.
+_Avoid_: List inventory, item feed
+
+**Potion Belt**:
+The hotkey-accessible potion supply that turns survival into a tactical resource during combat.
+_Avoid_: Healing bar, consumable tray
+
+**Death Toll**:
+The penalty paid when the player dies and returns to the Town Hub.
+_Avoid_: Lives, game over, corpse run
+
+**Champion Pack**:
+A stronger monster group inside the Mini-Act Loop that tests readiness before the Boss Room.
+_Avoid_: Elite mob, miniboss
+
+**Ashen Brute**:
+The first boss archetype: a slow, heavy melee enemy that pressures the player with summoned reinforcements.
+_Avoid_: Final boss, demon lord
 
 **Milestone Slice**:
 An independently playable, verified, committed, and pushed development step that adds a coherent piece of the game.

@@ -5,12 +5,14 @@ import {
   castSkill,
   createGameState,
   createLootDrop,
+  enterDungeon,
   enterWilderness,
   equipInventoryItem,
   sellInventoryItem,
   setDestination,
   stashInventoryItem,
   toggleInventory,
+  useReturnMarker,
   usePotion,
   type SkillId
 } from "./domain/game";
@@ -38,6 +40,16 @@ bindCanvasClick(handles.canvas, defaultCamera, (destination) => {
 
 handles.hud.querySelector("[data-testid='travel']")?.addEventListener("click", () => {
   state = enterWilderness(state);
+  handles.message.textContent = state.message;
+});
+
+handles.hud.querySelector("[data-testid='dungeon']")?.addEventListener("click", () => {
+  state = enterDungeon(state);
+  handles.message.textContent = state.message;
+});
+
+handles.hud.querySelector("[data-testid='return-marker']")?.addEventListener("click", () => {
+  state = useReturnMarker(state);
   handles.message.textContent = state.message;
 });
 
@@ -84,6 +96,8 @@ window.addEventListener("keydown", (event) => {
   if (event.key === "3") state = castSkill(state, "bindWretch");
   if (event.key.toLowerCase() === "q") state = usePotion(state);
   if (event.key.toLowerCase() === "t") state = enterWilderness(state);
+  if (event.key.toLowerCase() === "d") state = enterDungeon(state);
+  if (event.key.toLowerCase() === "r") state = useReturnMarker(state);
   if (event.key.toLowerCase() === "i") state = toggleInventory(state);
   handles.message.textContent = state.message;
 });

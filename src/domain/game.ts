@@ -33,6 +33,12 @@ export type InventoryEntry = {
   y: number;
 };
 
+export type DungeonRoom = {
+  id: string;
+  position: WorldPoint;
+  kind: "entry" | "hall" | "champion" | "return";
+};
+
 export type Combatant = {
   id: string;
   family: EnemyFamily;
@@ -75,6 +81,8 @@ export type GameState = {
   player: PlayerState;
   enemies: Combatant[];
   floatingText: FloatingText[];
+  dungeonSeed: number;
+  dungeonRooms: DungeonRoom[];
   message: string;
   tick: number;
   nextId: number;
@@ -105,9 +113,50 @@ export function createGameState(): GameState {
     },
     enemies: [],
     floatingText: [],
+    dungeonSeed: 1337,
+    dungeonRooms: [],
     message: "Town Hub ready. Click the isometric ground to move.",
     tick: 0,
     nextId: 1
+  };
+}
+
+export function enterDungeon(state: GameState, seed = state.dungeonSeed): GameState {
+  const dungeonRooms = generateDungeon(seed);
+  const champion = dungeonRooms.find((room) => room.kind === "champion") ?? dungeonRooms[2];
+  return {
+    ...state,
+    dungeonSeed: seed,
+    dungeonRooms,
+    player: {
+      ...state.player,
+      zone: "dungeon",
+      position: dungeonRooms[0].position,
+      destination: dungeonRooms[0].position
+    },
+    enemies: [
+      makeEnemy("beast-1", "durableBeast", { x: champion.position.x - 0.8, y: champion.position.y }),
+      makeEnemy("champion-1", "durableBeast", champion.position),
+      makeEnemy("cultist-2", "rangedCultist", { x: champion.position.x + 1.1, y: champion.position.y + 0.6 })
+    ],
+    message: "Dungeon Descent: deterministic halls lead to a Champion Pack and Return Marker."
+  };
+}
+
+export function useReturnMarker(state: GameState): GameState {
+  if (state.player.zone !== "dungeon") {
+    return { ...state, message: "Return Marker is only active in the Dungeon." };
+  }
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      zone: "town",
+      position: { x: 0, y: 0 },
+      destination: { x: 0, y: 0 }
+    },
+    enemies: [],
+    message: "Return Marker carried the Ashbound back to the Town Hub."
   };
 }
 
@@ -230,6 +279,30 @@ export function createLootDrop(seed: number, slot: EquipmentSlot = "weapon"): It
     stats,
     affixes: rarity === "common" ? [] : [rarity === "rare" ? "of Leech" : "of Focus"]
   };
+}
+
+export function generateDungeon(seed: number): DungeonRoom[] {
+  let cursor = seed;
+  const rooms: DungeonRoom[] = [{ id: "entry", position: { x: 3, y: 3 }, kind: "entry" }];
+  let position = { x: 3, y: 3 };
+  for (let index = 1; index <= 4; index += 1) {
+    cursor = (cursor * 1664525 + 1013904223) >>> 0;
+    position = {
+      x: position.x + 1.8 + (cursor % 3) * 0.6,
+      y: position.y + 0.9 + ((cursor >>> 3) % 3) * 0.5
+    };
+    rooms.push({
+      id: `room-${index}`,
+      position,
+      kind: index === 3 ? "champion" : "hall"
+    });
+  }
+  rooms.push({
+    id: "return-marker",
+    position: { x: position.x + 1.2, y: position.y + 0.5 },
+    kind: "return"
+  });
+  return rooms;
 }
 
 export function setDestination(state: GameState, destination: WorldPoint): GameState {

@@ -23,6 +23,8 @@ export function createShell(root: HTMLElement): RenderHandles {
         </div>
         <div class="hud-row">
           <button data-testid="travel" type="button">Travel</button>
+          <button data-testid="dungeon" type="button">Dungeon</button>
+          <button data-testid="return-marker" type="button">Return</button>
           <button data-testid="skill-cleave" type="button">Cleave</button>
           <button data-testid="skill-ember-bolt" type="button">Ember Bolt</button>
           <button data-testid="skill-bind-wretch" type="button">Bind Wretch</button>
@@ -65,6 +67,9 @@ export function renderGame(
   if (state.player.zone === "wilderness") {
     drawWildernessPath(context, camera);
   }
+  if (state.player.zone === "dungeon") {
+    drawDungeon(context, camera, state);
+  }
 
   const destination = worldToScreen(state.player.destination, camera);
   context.strokeStyle = "#f0b35a";
@@ -91,6 +96,7 @@ export function renderGame(
   context.fillText("Foundations: Canvas, isometric projection, Click-To-Move intent", 28, 42);
   context.fillText("First Blood: skills, enemies, potion tension, Death Toll", 28, 66);
   context.fillText("Loot Hunger: rarity drops, Grid Inventory, equipment, Vendor, Stash", 28, 90);
+  context.fillText("Dungeon Descent: seeded halls, Champion Pack, Durable Beast, Return Marker", 28, 114);
 
   for (const text of state.floatingText) {
     const point = worldToScreen(text.position, camera);
@@ -122,7 +128,7 @@ export function bindCanvasClick(
 }
 
 function updateHud(hud: HTMLElement, state: GameState): void {
-  hud.querySelector("[data-testid='zone']")!.textContent = state.player.zone === "town" ? "Town Hub" : "Wilderness";
+  hud.querySelector("[data-testid='zone']")!.textContent = zoneLabel(state.player.zone);
   hud.querySelector("[data-testid='health']")!.textContent = `Health ${Math.round(state.player.health)}/${state.player.maxHealth}`;
   hud.querySelector("[data-testid='mana']")!.textContent = `Mana ${Math.round(state.player.mana)}/${state.player.maxMana}`;
   hud.querySelector("[data-testid='gold']")!.textContent = `Gold ${state.player.gold}`;
@@ -164,6 +170,13 @@ function updateHud(hud: HTMLElement, state: GameState): void {
         .join("")}
     </div>
   `;
+}
+
+function zoneLabel(zone: GameState["player"]["zone"]): string {
+  if (zone === "town") return "Town Hub";
+  if (zone === "wilderness") return "Wilderness";
+  if (zone === "dungeon") return "Dungeon";
+  return "Boss Room";
 }
 
 function formatStats(stats: Record<string, number | undefined>): string {
@@ -234,4 +247,27 @@ function drawEnemy(context: CanvasRenderingContext2D, camera: IsoCamera, enemy: 
   context.fillRect(point.x - 18, point.y - 42, 36, 5);
   context.fillStyle = "#d94c42";
   context.fillRect(point.x - 18, point.y - 42, 36 * (enemy.health / enemy.maxHealth), 5);
+}
+
+function drawDungeon(context: CanvasRenderingContext2D, camera: IsoCamera, state: GameState): void {
+  context.strokeStyle = "rgba(156, 131, 104, 0.72)";
+  context.lineWidth = 12;
+  context.lineCap = "round";
+  context.beginPath();
+  state.dungeonRooms.forEach((room, index) => {
+    const point = worldToScreen(room.position, camera);
+    if (index === 0) context.moveTo(point.x, point.y);
+    else context.lineTo(point.x, point.y);
+  });
+  context.stroke();
+  for (const room of state.dungeonRooms) {
+    const point = worldToScreen(room.position, camera);
+    context.fillStyle = room.kind === "champion" ? "#7b3131" : room.kind === "return" ? "#3b6b77" : "#2a2924";
+    context.strokeStyle = "#c6aa79";
+    context.lineWidth = 2;
+    context.beginPath();
+    context.ellipse(point.x, point.y, 38, 19, 0, 0, Math.PI * 2);
+    context.fill();
+    context.stroke();
+  }
 }

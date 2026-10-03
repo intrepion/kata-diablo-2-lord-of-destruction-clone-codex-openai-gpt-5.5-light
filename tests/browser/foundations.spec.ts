@@ -42,3 +42,15 @@ test("Loot Hunger smoke equips, sells, and stashes loot", async ({ page }) => {
   await page.getByRole("button", { name: "Stash" }).first().click();
   await expect(page.getByTestId("stash-count")).toContainText("Stash: 1");
 });
+
+test("Dungeon Descent smoke enters seeded dungeon and returns to town", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByTestId("dungeon").click();
+  await expect(page.getByTestId("zone")).toContainText("Dungeon");
+  await expect(page.getByTestId("message")).toContainText("Champion Pack");
+
+  await page.getByTestId("return-marker").click();
+  await expect(page.getByTestId("zone")).toContainText("Town Hub");
+  await expect(page.getByTestId("message")).toContainText("Return Marker");
+});

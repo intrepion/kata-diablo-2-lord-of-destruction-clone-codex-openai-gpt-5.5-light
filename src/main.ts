@@ -6,8 +6,10 @@ import {
   createGameState,
   createLootDrop,
   enterDungeon,
+  enterBossRoom,
   enterWilderness,
   equipInventoryItem,
+  chooseSkillLine,
   sellInventoryItem,
   setDestination,
   stashInventoryItem,
@@ -53,6 +55,11 @@ handles.hud.querySelector("[data-testid='return-marker']")?.addEventListener("cl
   handles.message.textContent = state.message;
 });
 
+handles.hud.querySelector("[data-testid='boss']")?.addEventListener("click", () => {
+  state = enterBossRoom(state);
+  handles.message.textContent = state.message;
+});
+
 for (const [testId, skill] of [
   ["skill-cleave", "cleave"],
   ["skill-ember-bolt", "emberBolt"],
@@ -90,6 +97,11 @@ handles.hud.addEventListener("click", (event) => {
   handles.message.textContent = state.message;
 });
 
+handles.hud.querySelector("[data-testid='choose-embercraft']")?.addEventListener("click", () => {
+  state = chooseSkillLine(state, "Embercraft");
+  handles.message.textContent = state.message;
+});
+
 window.addEventListener("keydown", (event) => {
   if (event.key === "1") state = castSkill(state, "cleave");
   if (event.key === "2") state = castSkill(state, "emberBolt");
@@ -98,6 +110,7 @@ window.addEventListener("keydown", (event) => {
   if (event.key.toLowerCase() === "t") state = enterWilderness(state);
   if (event.key.toLowerCase() === "d") state = enterDungeon(state);
   if (event.key.toLowerCase() === "r") state = useReturnMarker(state);
+  if (event.key.toLowerCase() === "b") state = enterBossRoom(state);
   if (event.key.toLowerCase() === "i") state = toggleInventory(state);
   handles.message.textContent = state.message;
 });

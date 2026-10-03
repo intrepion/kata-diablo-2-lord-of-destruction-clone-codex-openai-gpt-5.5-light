@@ -54,3 +54,19 @@ test("Dungeon Descent smoke enters seeded dungeon and returns to town", async ({
   await expect(page.getByTestId("zone")).toContainText("Town Hub");
   await expect(page.getByTestId("message")).toContainText("Return Marker");
 });
+
+test("Brute Reckoning smoke defeats the boss and chooses a skill line", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByTestId("boss").click();
+  await expect(page.getByTestId("zone")).toContainText("Boss Room");
+  for (let index = 0; index < 2; index += 1) {
+    await page.getByTestId("skill-ember-bolt").click();
+    await page.waitForTimeout(900);
+  }
+
+  await expect(page.getByTestId("zone")).toContainText("Town Hub");
+  await expect(page.getByTestId("victory-panel")).toBeVisible();
+  await page.getByTestId("choose-embercraft").click();
+  await expect(page.getByTestId("message")).toContainText("Embercraft strengthened");
+});

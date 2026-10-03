@@ -24,6 +24,7 @@ export function createShell(root: HTMLElement): RenderHandles {
         <div class="hud-row">
           <button data-testid="travel" type="button">Travel</button>
           <button data-testid="dungeon" type="button">Dungeon</button>
+          <button data-testid="boss" type="button">Boss</button>
           <button data-testid="return-marker" type="button">Return</button>
           <button data-testid="skill-cleave" type="button">Cleave</button>
           <button data-testid="skill-ember-bolt" type="button">Ember Bolt</button>
@@ -33,6 +34,10 @@ export function createShell(root: HTMLElement): RenderHandles {
           <button data-testid="debug-loot" type="button">Find Loot</button>
         </div>
         <div class="inventory-panel" data-testid="inventory-panel" hidden></div>
+        <div class="victory-panel" data-testid="victory-panel" hidden>
+          <strong>Mini-Act Complete</strong>
+          <button data-testid="choose-embercraft" type="button">Choose Embercraft</button>
+        </div>
         <p data-testid="message"></p>
       </section>
     </main>
@@ -70,6 +75,9 @@ export function renderGame(
   if (state.player.zone === "dungeon") {
     drawDungeon(context, camera, state);
   }
+  if (state.player.zone === "boss") {
+    drawBossRoom(context, camera);
+  }
 
   const destination = worldToScreen(state.player.destination, camera);
   context.strokeStyle = "#f0b35a";
@@ -97,6 +105,7 @@ export function renderGame(
   context.fillText("First Blood: skills, enemies, potion tension, Death Toll", 28, 66);
   context.fillText("Loot Hunger: rarity drops, Grid Inventory, equipment, Vendor, Stash", 28, 90);
   context.fillText("Dungeon Descent: seeded halls, Champion Pack, Durable Beast, Return Marker", 28, 114);
+  context.fillText("Brute Reckoning: Ashen Brute, adds, boss reward, level-up choice", 28, 138);
 
   for (const text of state.floatingText) {
     const point = worldToScreen(text.position, camera);
@@ -131,8 +140,12 @@ function updateHud(hud: HTMLElement, state: GameState): void {
   hud.querySelector("[data-testid='zone']")!.textContent = zoneLabel(state.player.zone);
   hud.querySelector("[data-testid='health']")!.textContent = `Health ${Math.round(state.player.health)}/${state.player.maxHealth}`;
   hud.querySelector("[data-testid='mana']")!.textContent = `Mana ${Math.round(state.player.mana)}/${state.player.maxMana}`;
-  hud.querySelector("[data-testid='gold']")!.textContent = `Gold ${state.player.gold}`;
+  hud.querySelector("[data-testid='gold']")!.textContent = `Gold ${state.player.gold} | Level ${state.player.level} | SP ${state.player.skillPoints}`;
   hud.querySelector("[data-testid='potion']")!.textContent = `Potion (${state.player.potions})`;
+  const victoryPanel = hud.querySelector<HTMLElement>("[data-testid='victory-panel']");
+  if (victoryPanel) {
+    victoryPanel.hidden = !state.player.miniActComplete;
+  }
   const panel = hud.querySelector<HTMLElement>("[data-testid='inventory-panel']");
   if (!panel) return;
   panel.hidden = !state.player.inventoryOpen;
@@ -270,4 +283,18 @@ function drawDungeon(context: CanvasRenderingContext2D, camera: IsoCamera, state
     context.fill();
     context.stroke();
   }
+}
+
+function drawBossRoom(context: CanvasRenderingContext2D, camera: IsoCamera): void {
+  const center = worldToScreen({ x: 11, y: 6 }, camera);
+  context.fillStyle = "rgba(66, 24, 20, 0.82)";
+  context.beginPath();
+  context.ellipse(center.x, center.y, 210, 92, 0, 0, Math.PI * 2);
+  context.fill();
+  context.strokeStyle = "rgba(240, 196, 90, 0.6)";
+  context.lineWidth = 3;
+  context.stroke();
+  context.fillStyle = "#f0c45a";
+  context.font = "15px system-ui";
+  context.fillText("Boss Room", center.x - 36, center.y + 5);
 }

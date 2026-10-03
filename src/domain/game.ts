@@ -70,6 +70,9 @@ export type PlayerState = {
   maxMana: number;
   potions: number;
   gold: number;
+  level: number;
+  skillPoints: number;
+  miniActComplete: boolean;
   inventoryOpen: boolean;
   inventory: InventoryEntry[];
   equipment: Partial<Record<EquipmentSlot, Item>>;
@@ -101,6 +104,9 @@ export function createGameState(): GameState {
       maxMana: 60,
       potions: 3,
       gold: 80,
+      level: 1,
+      skillPoints: 0,
+      miniActComplete: false,
       inventoryOpen: false,
       inventory: [],
       equipment: {},
@@ -157,6 +163,38 @@ export function useReturnMarker(state: GameState): GameState {
     },
     enemies: [],
     message: "Return Marker carried the Ashbound back to the Town Hub."
+  };
+}
+
+export function enterBossRoom(state: GameState): GameState {
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      zone: "boss",
+      position: { x: 9, y: 6 },
+      destination: { x: 9, y: 6 }
+    },
+    enemies: [
+      makeEnemy("ashen-brute", "ashenBrute", { x: 10.2, y: 6 }),
+      makeEnemy("brute-add-1", "swarmMelee", { x: 11.1, y: 5.2 }),
+      makeEnemy("brute-add-2", "swarmMelee", { x: 11.2, y: 6.8 })
+    ],
+    message: "Brute Reckoning: Ashen Brute and reinforcements guard the Boss Room."
+  };
+}
+
+export function chooseSkillLine(state: GameState, line: "Cinderblade" | "Embercraft" | "Gravebind"): GameState {
+  if (state.player.skillPoints <= 0) {
+    return { ...state, message: "No skill point is available." };
+  }
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      skillPoints: state.player.skillPoints - 1
+    },
+    message: `${line} strengthened. Build Identity changed.`
   };
 }
 
@@ -348,7 +386,13 @@ export function castSkill(state: GameState, skill: SkillId): GameState {
 
   const targets = state.enemies
     .filter((enemy) => enemy.health > 0 && distance(enemy.position, player.position) <= spec.range)
-    .sort((a, b) => distance(a.position, player.position) - distance(b.position, player.position))
+    .sort((a, b) => {
+      if (player.zone === "boss" && a.family !== b.family) {
+        if (a.family === "ashenBrute") return -1;
+        if (b.family === "ashenBrute") return 1;
+      }
+      return distance(a.position, player.position) - distance(b.position, player.position);
+    })
     .slice(0, spec.maxTargets);
 
   if (targets.length === 0) {
@@ -421,7 +465,7 @@ function makeEnemy(id: string, family: EnemyFamily, position: WorldPoint): Comba
     return { id, family, position, health: 95, maxHealth: 95, damage: 13, range: 1.1, speed: 2.1, attackCooldown: 0, bindSeconds: 0 };
   }
   if (family === "ashenBrute") {
-    return { id, family, position, health: 240, maxHealth: 240, damage: 18, range: 1.4, speed: 1.5, attackCooldown: 0, bindSeconds: 0 };
+    return { id, family, position, health: 60, maxHealth: 60, damage: 18, range: 1.4, speed: 1.5, attackCooldown: 0, bindSeconds: 0 };
   }
   return { id, family, position, health: 34, maxHealth: 34, damage: 7, range: 1.05, speed: 2.8, attackCooldown: 0, bindSeconds: 0 };
 }
@@ -495,8 +539,29 @@ function damageEnemy(state: GameState, enemyId: string, amount: number, source: 
   };
   if (nextHealth === 0 && enemy.health > 0) {
     next = addLootToInventory(next, createLootDrop(state.nextId + amount, enemy.family === "rangedCultist" ? "offhand" : "weapon"));
+    if (enemy.family === "ashenBrute") {
+      next = completeMiniAct(next);
+    }
   }
   return next;
+}
+
+function completeMiniAct(state: GameState): GameState {
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      zone: "town",
+      position: { x: 0, y: 0 },
+      destination: { x: 0, y: 0 },
+      level: state.player.level + 1,
+      skillPoints: state.player.skillPoints + 1,
+      miniActComplete: true,
+      gold: state.player.gold + 100
+    },
+    enemies: [],
+    message: "Ashen Brute defeated. Returned to town with a skill point and boss reward."
+  };
 }
 
 function bindEnemy(state: GameState, enemyId: string, seconds: number): GameState {

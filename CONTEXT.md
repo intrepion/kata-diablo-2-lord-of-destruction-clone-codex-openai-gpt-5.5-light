@@ -36,6 +36,30 @@ _Avoid_: WASD movement, twin-stick movement
 A themed progression branch for the player class that supports a distinct combat build.
 _Avoid_: Talent tab, subclass, ability category
 
+**Cinderblade**:
+The Ashbound Skill Line focused on close-range weapon arcs and aggressive blade combat.
+_Avoid_: Melee tree, warrior skills
+
+**Embercraft**:
+The Ashbound Skill Line focused on fire magic, ranged pressure, and burning damage.
+_Avoid_: Fire tree, mage skills
+
+**Gravebind**:
+The Ashbound Skill Line focused on curses, control, and bound helper effects.
+_Avoid_: Necromancy tree, summoner skills
+
+**Cleave**:
+The starting Cinderblade skill, a close-range arc attack that rewards positioning against clustered enemies.
+_Avoid_: Slash, basic attack
+
+**Ember Bolt**:
+The starting Embercraft skill, a ranged fire projectile used to pressure enemies before they close.
+_Avoid_: Fireball, magic missile
+
+**Bind Wretch**:
+The starting Gravebind skill, a short control effect that slows or briefly binds a hostile presence.
+_Avoid_: Summon skeleton, root spell
+
 **Ashbound**:
 The starter player class, an oath-burned exile whose Build Identity can lean into blade combat, ember magic, or binding curses.
 _Avoid_: Warrior, mage, necromancer
@@ -48,6 +72,10 @@ _Avoid_: Loadout, character type
 A generated modifier attached to equipment that changes stats or combat behavior.
 _Avoid_: Perk, trait, bonus
 
+**Stat**:
+A named numeric property that shapes combat performance, item comparison, or Build Identity.
+_Avoid_: Attribute, modifier
+
 **Rarity**:
 The broad quality tier of an item, expressed through loot color, affix capacity, and player expectation.
 _Avoid_: Item level, value
@@ -55,6 +83,14 @@ _Avoid_: Item level, value
 **Equipment Slot**:
 A place on the character where one item can be worn to affect combat performance.
 _Avoid_: Inventory cell, gear bucket
+
+**Weapon**:
+The Equipment Slot that primarily defines attack damage and basic combat reach.
+_Avoid_: Main hand
+
+**Offhand**:
+The Equipment Slot for a secondary defensive, magical, or utility item.
+_Avoid_: Shield slot, second hand
 
 **Inventory**:
 The player's carried item collection, separate from equipped items.
@@ -68,17 +104,57 @@ _Avoid_: List inventory, item feed
 The hotkey-accessible potion supply that turns survival into a tactical resource during combat.
 _Avoid_: Healing bar, consumable tray
 
+**Mana**:
+The replenishable resource spent on Ashbound skills and supported by potion economy.
+_Avoid_: Energy, spell points
+
+**Cooldown**:
+The short timing gate that prevents an active skill from being repeated continuously.
+_Avoid_: Reload, timer
+
 **Death Toll**:
 The penalty paid when the player dies and returns to the Town Hub.
 _Avoid_: Lives, game over, corpse run
+
+**Healer**:
+The Town Hub service that restores the player's combat readiness between dangerous outings.
+_Avoid_: Priest, medic
+
+**Vendor**:
+The Town Hub service that buys and sells ordinary equipment and consumables.
+_Avoid_: Shop, merchant
+
+**Stash**:
+The Town Hub service that stores items outside the player's carried Inventory.
+_Avoid_: Bank, chest
+
+**Return Marker**:
+The Town Hub service or location that anchors return travel from the Mini-Act Loop.
+_Avoid_: Waypoint, town portal
 
 **Champion Pack**:
 A stronger monster group inside the Mini-Act Loop that tests readiness before the Boss Room.
 _Avoid_: Elite mob, miniboss
 
+**Swarm Melee**:
+A monster family defined by fragile close-range enemies that threaten through numbers.
+_Avoid_: Fodder, trash mobs
+
+**Ranged Cultist**:
+A monster family defined by ranged pressure and target-priority decisions.
+_Avoid_: Archer, caster
+
+**Durable Beast**:
+A monster family defined by high endurance and close-range body pressure.
+_Avoid_: Tank, brute
+
 **Ashen Brute**:
 The first boss archetype: a slow, heavy melee enemy that pressures the player with summoned reinforcements.
 _Avoid_: Final boss, demon lord
+
+**Canvas Silhouette**:
+The visual style for combat entities, using clean browser-drawn shapes, lighting, colors, and telegraphs instead of asset-heavy sprite art.
+_Avoid_: Pixel art, painted sprite, placeholder shape
 
 **Milestone Slice**:
 An independently playable, verified, committed, and pushed development step that adds a coherent piece of the game.

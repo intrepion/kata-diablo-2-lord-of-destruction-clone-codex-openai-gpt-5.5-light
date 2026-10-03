@@ -15,3 +15,15 @@ test("Foundations smoke renders HUD and accepts click-to-move intent", async ({ 
   await page.mouse.click(box.x + box.width * 0.62, box.y + box.height * 0.45);
   await expect(page.getByTestId("message")).toContainText("Click-To-Move intent");
 });
+
+test("First Blood smoke enters wilderness and casts starting skills", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByTestId("travel").click();
+  await expect(page.getByTestId("zone")).toContainText("Wilderness");
+  await expect(page.getByTestId("message")).toContainText("First Blood");
+
+  await page.getByTestId("skill-ember-bolt").click();
+  await expect(page.getByTestId("message")).toContainText("Ember Bolt");
+  await expect(page.getByTestId("mana")).not.toContainText("Mana 60/60");
+});

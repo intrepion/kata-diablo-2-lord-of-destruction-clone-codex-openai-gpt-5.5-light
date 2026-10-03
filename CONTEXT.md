@@ -187,3 +187,35 @@ _Avoid_: Build phase, packaging
 **Verification Contract**:
 The required evidence that a Milestone Slice is done, including deterministic tests, real browser gameplay smoke, production build, whitespace check, commit, push, and remote SHA verification.
 _Avoid_: QA checklist, done criteria
+
+**Local Save**:
+The browser-stored player progress for level, equipped gear, Stash contents, gold, and completed Mini-Act state.
+_Avoid_: Save file, account, profile
+
+**Run Seed**:
+The deterministic value used to regenerate the Dungeon for a New Run.
+_Avoid_: Random seed, map code
+
+**New Run**:
+The post-victory action that keeps character progress while generating a fresh Dungeon from a new Run Seed.
+_Avoid_: Restart, new game
+
+**Run Count**:
+The number of completed or started New Runs used with zone depth to scale enemy pressure.
+_Avoid_: Difficulty level, prestige
+
+**Gold Economy**:
+The MVP money loop covering potion and basic gear purchases, Vendor sell value, and Death Toll payment.
+_Avoid_: Currency system, gambling
+
+**HUD Button**:
+A visible on-screen control for skills, potions, or panels that mirrors keyboard hotkeys.
+_Avoid_: Shortcut, mobile control
+
+**Mini-Act Smoke**:
+The canonical browser test route that proves town departure, combat, loot equip, dungeon entry, boss defeat, return, and persistence reload.
+_Avoid_: E2E test, browser smoke
+
+**Implementation Start Gate**:
+The point where design grilling stops and the next unsettled questions are answered through Milestone Slice implementation and verification.
+_Avoid_: Handoff, planning complete

@@ -70,3 +70,22 @@ test("Brute Reckoning smoke defeats the boss and chooses a skill line", async ({
   await page.getByTestId("choose-embercraft").click();
   await expect(page.getByTestId("message")).toContainText("Embercraft strengthened");
 });
+
+test("Mini-Act Smoke persists victory and starts a New Run", async ({ page }) => {
+  await page.goto("/");
+  await page.evaluate(() => localStorage.clear());
+  await page.reload();
+
+  await page.getByTestId("boss").click();
+  for (let index = 0; index < 2; index += 1) {
+    await page.getByTestId("skill-ember-bolt").click();
+    await page.waitForTimeout(900);
+  }
+  await expect(page.getByTestId("victory-panel")).toBeVisible();
+  await page.waitForTimeout(1100);
+  await page.reload();
+  await expect(page.getByTestId("gold")).toContainText("Level 2");
+
+  await page.getByTestId("new-run").click();
+  await expect(page.getByTestId("message")).toContainText("New Run");
+});

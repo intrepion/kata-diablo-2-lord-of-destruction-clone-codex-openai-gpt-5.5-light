@@ -73,6 +73,7 @@ export type PlayerState = {
   level: number;
   skillPoints: number;
   miniActComplete: boolean;
+  runCount: number;
   inventoryOpen: boolean;
   inventory: InventoryEntry[];
   equipment: Partial<Record<EquipmentSlot, Item>>;
@@ -107,6 +108,7 @@ export function createGameState(): GameState {
       level: 1,
       skillPoints: 0,
       miniActComplete: false,
+      runCount: 0,
       inventoryOpen: false,
       inventory: [],
       equipment: {},
@@ -141,9 +143,9 @@ export function enterDungeon(state: GameState, seed = state.dungeonSeed): GameSt
       destination: dungeonRooms[0].position
     },
     enemies: [
-      makeEnemy("beast-1", "durableBeast", { x: champion.position.x - 0.8, y: champion.position.y }),
-      makeEnemy("champion-1", "durableBeast", champion.position),
-      makeEnemy("cultist-2", "rangedCultist", { x: champion.position.x + 1.1, y: champion.position.y + 0.6 })
+      scaleEnemy(makeEnemy("beast-1", "durableBeast", { x: champion.position.x - 0.8, y: champion.position.y }), state.player.runCount, 2),
+      scaleEnemy(makeEnemy("champion-1", "durableBeast", champion.position), state.player.runCount, 3),
+      scaleEnemy(makeEnemy("cultist-2", "rangedCultist", { x: champion.position.x + 1.1, y: champion.position.y + 0.6 }), state.player.runCount, 2)
     ],
     message: "Dungeon Descent: deterministic halls lead to a Champion Pack and Return Marker."
   };
@@ -195,6 +197,41 @@ export function chooseSkillLine(state: GameState, line: "Cinderblade" | "Embercr
       skillPoints: state.player.skillPoints - 1
     },
     message: `${line} strengthened. Build Identity changed.`
+  };
+}
+
+export function buyPotion(state: GameState): GameState {
+  if (state.player.gold < 15) {
+    return { ...state, message: "Vendor requires 15 gold for a potion." };
+  }
+  return {
+    ...state,
+    player: {
+      ...state.player,
+      gold: state.player.gold - 15,
+      potions: state.player.potions + 1
+    },
+    message: "Vendor sold a potion for 15 gold."
+  };
+}
+
+export function startNewRun(state: GameState): GameState {
+  const runCount = state.player.runCount + 1;
+  const dungeonSeed = state.dungeonSeed + 97 + runCount * 13;
+  return {
+    ...state,
+    dungeonSeed,
+    dungeonRooms: [],
+    enemies: [],
+    player: {
+      ...state.player,
+      runCount,
+      zone: "town",
+      position: { x: 0, y: 0 },
+      destination: { x: 0, y: 0 },
+      miniActComplete: false
+    },
+    message: `New Run ${runCount} prepared with Run Seed ${dungeonSeed}.`
   };
 }
 
@@ -468,6 +505,16 @@ function makeEnemy(id: string, family: EnemyFamily, position: WorldPoint): Comba
     return { id, family, position, health: 60, maxHealth: 60, damage: 18, range: 1.4, speed: 1.5, attackCooldown: 0, bindSeconds: 0 };
   }
   return { id, family, position, health: 34, maxHealth: 34, damage: 7, range: 1.05, speed: 2.8, attackCooldown: 0, bindSeconds: 0 };
+}
+
+function scaleEnemy(enemy: Combatant, runCount: number, zoneDepth: number): Combatant {
+  const scale = 1 + runCount * 0.12 + zoneDepth * 0.08;
+  return {
+    ...enemy,
+    health: Math.round(enemy.health * scale),
+    maxHealth: Math.round(enemy.maxHealth * scale),
+    damage: Math.round(enemy.damage * (1 + runCount * 0.08 + zoneDepth * 0.04))
+  };
 }
 
 function movePlayer(state: GameState, deltaSeconds: number): GameState {

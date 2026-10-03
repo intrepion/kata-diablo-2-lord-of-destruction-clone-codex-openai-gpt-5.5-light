@@ -30,6 +30,7 @@ export function createShell(root: HTMLElement): RenderHandles {
           <button data-testid="skill-ember-bolt" type="button">Ember Bolt</button>
           <button data-testid="skill-bind-wretch" type="button">Bind Wretch</button>
           <button data-testid="potion" type="button">Potion</button>
+          <button data-testid="buy-potion" type="button">Buy Potion</button>
           <button data-testid="inventory" type="button">Inventory</button>
           <button data-testid="debug-loot" type="button">Find Loot</button>
         </div>
@@ -37,6 +38,7 @@ export function createShell(root: HTMLElement): RenderHandles {
         <div class="victory-panel" data-testid="victory-panel" hidden>
           <strong>Mini-Act Complete</strong>
           <button data-testid="choose-embercraft" type="button">Choose Embercraft</button>
+          <button data-testid="new-run" type="button">New Run</button>
         </div>
         <p data-testid="message"></p>
       </section>

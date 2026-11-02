@@ -1,6 +1,47 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "gameId": "kata-diablo-2-lord-of-destruction-clone-codex-openai-gpt-5.5-light",
   "playUrl": "https://intrepion.github.io/kata-diablo-2-lord-of-destruction-clone-codex-openai-gpt-5.5-light/",
-  "screenshots": []
+  "screenshots": [
+    {
+      "path": "arcade/screenshots/ci-20261102-01.jpg",
+      "sha256": "9dc82c57fecd56ca184ec0448be1ca7d83566ad573ea1a66fdd2d68cf8120c5c",
+      "alt": "Ashen Reach gameplay, view 1",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-01.png",
+        "sourceSha256": "a06397add2cd71fa83b02cb93e35bae366dfd91f753f7ba570e2d0b732b94a1e",
+        "captureCommit": "6b2783f8653bda9975cb7d448f11cbfd97e78873",
+        "workflowRunId": "41400359692",
+        "inputHashes": {
+          "index.html": "cc00fd1c8a05b90ecff91f45fff8b2bbe11d9de55af17bb3a3a15f7ae6b4241d",
+          "game.css": "c3d840544a0e9a446383e3b92babd877b19b5b4f405d00c3744bf51a7fb732e9",
+          "game.js": "065780b63b43b8d9403aaed3e429d82bb195d6dc65ab3752b4e3426401ecde17"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "3cefe4734ccb4b46df02bc1cd2b61323899f821f656c2db49dfb576cd702c25c"
+      }
+    },
+    {
+      "path": "arcade/screenshots/ci-20261102-02.jpg",
+      "sha256": "d317607b5023c3012a2adbb76857f90bff1ed37767380c317eba6f25be9e2634",
+      "alt": "Ashen Reach gameplay, view 2",
+      "provenance": {
+        "kind": "ci_gameplay_capture",
+        "sourcePath": "arcade/capture-evidence/ci-20261102-02.png",
+        "sourceSha256": "58392f78ae60b8163608936c0d2f724d28d9bc4800960d61a46e666d12e10551",
+        "captureCommit": "6b2783f8653bda9975cb7d448f11cbfd97e78873",
+        "workflowRunId": "41400359692",
+        "inputHashes": {
+          "index.html": "cc00fd1c8a05b90ecff91f45fff8b2bbe11d9de55af17bb3a3a15f7ae6b4241d",
+          "game.css": "c3d840544a0e9a446383e3b92babd877b19b5b4f405d00c3744bf51a7fb732e9",
+          "game.js": "065780b63b43b8d9403aaed3e429d82bb195d6dc65ab3752b4e3426401ecde17"
+        },
+        "publishedFilesVerifiedAt": "2026-11-02T19:01:20Z",
+        "captureRecordPath": "arcade/capture-evidence/ci-20261102-record.json",
+        "captureRecordSha256": "3cefe4734ccb4b46df02bc1cd2b61323899f821f656c2db49dfb576cd702c25c"
+      }
+    }
+  ]
 }
